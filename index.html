@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mike's Workout Tracker</title>
+    <title>Workout Tracker</title>
     <style>
         * {
             margin: 0;
@@ -294,7 +294,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>💪 Mike's Workout Tracker</h1>
+            <h1>💪 Workout Tracker</h1>
         </div>
 
         <div class="card">
@@ -551,90 +551,176 @@
 
         function updateChart() {
             const canvas = document.getElementById('progress-chart');
-            const ctx = canvas.getContext('2d');
             const data = workoutData[currentExercise] || [];
 
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Try to render canvas chart first
+            try {
+                const ctx = canvas.getContext('2d');
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (data.length === 0) {
-                ctx.fillStyle = '#666';
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('No data to display', canvas.width / 2, canvas.height / 2);
-                return;
-            }
+                if (data.length === 0) {
+                    ctx.fillStyle = '#666';
+                    ctx.font = '16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('No data to display', canvas.width / 2, canvas.height / 2);
+                    return;
+                }
 
-            // Set canvas size
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+                // Set canvas size
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
 
-            const padding = 40;
-            const chartWidth = canvas.width - 2 * padding;
-            const chartHeight = canvas.height - 2 * padding;
+                if (canvas.width === 0 || canvas.height === 0) {
+                    throw new Error('Canvas size is zero');
+                }
 
-            // Get max reps for scaling
-            const maxReps = Math.max(...data.map(d => d.reps));
-            const minReps = Math.min(...data.map(d => d.reps));
-            const repsRange = maxReps - minReps || 1;
+                const padding = 40;
+                const chartWidth = canvas.width - 2 * padding;
+                const chartHeight = canvas.height - 2 * padding;
 
-            // Draw axes
-            ctx.strokeStyle = '#ccc';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(padding, padding);
-            ctx.lineTo(padding, padding + chartHeight);
-            ctx.lineTo(padding + chartWidth, padding + chartHeight);
-            ctx.stroke();
+                // Get max reps for scaling
+                const maxReps = Math.max(...data.map(d => d.reps));
+                const minReps = Math.min(...data.map(d => d.reps));
+                const repsRange = maxReps - minReps || 1;
 
-            // Draw data points and lines
-            if (data.length > 1) {
-                ctx.strokeStyle = '#667eea';
-                ctx.lineWidth = 2;
+                // Draw axes
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 1;
                 ctx.beginPath();
+                ctx.moveTo(padding, padding);
+                ctx.lineTo(padding, padding + chartHeight);
+                ctx.lineTo(padding + chartWidth, padding + chartHeight);
+                ctx.stroke();
 
+                // Draw data points and lines
+                if (data.length > 1) {
+                    ctx.strokeStyle = '#667eea';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+
+                    data.forEach((workout, index) => {
+                        const x = padding + (index / (data.length - 1)) * chartWidth;
+                        const y = padding + chartHeight - ((workout.reps - minReps) / repsRange) * chartHeight;
+                        
+                        if (index === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    });
+                    ctx.stroke();
+                }
+
+                // Draw data points
+                ctx.fillStyle = '#667eea';
                 data.forEach((workout, index) => {
-                    const x = padding + (index / (data.length - 1)) * chartWidth;
+                    const x = padding + (index / Math.max(data.length - 1, 1)) * chartWidth;
                     const y = padding + chartHeight - ((workout.reps - minReps) / repsRange) * chartHeight;
                     
-                    if (index === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                    ctx.fill();
                 });
-                ctx.stroke();
-            }
 
-            // Draw data points
-            ctx.fillStyle = '#667eea';
-            data.forEach((workout, index) => {
-                const x = padding + (index / Math.max(data.length - 1, 1)) * chartWidth;
-                const y = padding + chartHeight - ((workout.reps - minReps) / repsRange) * chartHeight;
+                // Draw labels
+                ctx.fillStyle = '#666';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
                 
-                ctx.beginPath();
-                ctx.arc(x, y, 4, 0, 2 * Math.PI);
-                ctx.fill();
-            });
+                // Y-axis labels
+                ctx.textAlign = 'right';
+                for (let i = 0; i <= 5; i++) {
+                    const value = minReps + (repsRange * i / 5);
+                    const y = padding + chartHeight - (i / 5) * chartHeight;
+                    ctx.fillText(Math.round(value), padding - 10, y + 4);
+                }
 
-            // Draw labels
-            ctx.fillStyle = '#666';
-            ctx.font = '12px Arial';
-            ctx.textAlign = 'center';
-            
-            // Y-axis labels
-            ctx.textAlign = 'right';
-            for (let i = 0; i <= 5; i++) {
-                const value = minReps + (repsRange * i / 5);
-                const y = padding + chartHeight - (i / 5) * chartHeight;
-                ctx.fillText(Math.round(value), padding - 10, y + 4);
+                // Title
+                ctx.fillStyle = '#333';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1)} Progress`, canvas.width / 2, 25);
+
+            } catch (error) {
+                // Fallback to text-based progress display
+                console.log('Canvas rendering failed, showing text fallback:', error);
+                showTextProgress(data);
             }
+        }
 
-            // Title
-            ctx.fillStyle = '#333';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1)} Progress`, canvas.width / 2, 25);
+        function showTextProgress(data) {
+            const canvas = document.getElementById('progress-chart');
+            const container = canvas.parentElement;
+            
+            // Hide canvas and show text-based progress
+            canvas.style.display = 'none';
+            
+            // Remove any existing fallback
+            const existingFallback = container.querySelector('.progress-fallback');
+            if (existingFallback) {
+                existingFallback.remove();
+            }
+            
+            const fallbackDiv = document.createElement('div');
+            fallbackDiv.className = 'progress-fallback';
+            fallbackDiv.style.cssText = `
+                padding: 20px;
+                background: white;
+                border-radius: 10px;
+                margin-top: 20px;
+            `;
+            
+            if (data.length === 0) {
+                fallbackDiv.innerHTML = '<div class="no-data">No data to display</div>';
+                container.appendChild(fallbackDiv);
+                return;
+            }
+            
+            const maxReps = Math.max(...data.map(d => d.reps));
+            const minReps = Math.min(...data.map(d => d.reps));
+            const improvement = data.length > 1 ? data[data.length - 1].reps - data[0].reps : 0;
+            const avgReps = Math.round(data.reduce((sum, d) => sum + d.reps, 0) / data.length);
+            
+            fallbackDiv.innerHTML = `
+                <h3 style="text-align: center; margin-bottom: 20px; color: #333;">
+                    ${currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1)} Progress
+                </h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-size: 1.5em; font-weight: bold; color: #667eea;">${maxReps}</div>
+                        <div style="font-size: 0.9em; color: #666;">Personal Best</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-size: 1.5em; font-weight: bold; color: ${improvement >= 0 ? '#28a745' : '#dc3545'};">
+                            ${improvement > 0 ? '+' : ''}${improvement}
+                        </div>
+                        <div style="font-size: 0.9em; color: #666;">Total Progress</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 1.2em; font-weight: bold; color: #333;">Average: ${avgReps} reps</div>
+                    <div style="font-size: 0.9em; color: #666;">${data.length} workouts completed</div>
+                </div>
+                <div style="max-height: 200px; overflow-y: auto;">
+                    ${data.map((workout, index) => {
+                        const date = new Date(workout.date).toLocaleDateString();
+                        const barWidth = (workout.reps / maxReps) * 100;
+                        return `
+                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <div style="width: 80px; font-size: 0.8em; color: #666;">${date}</div>
+                                <div style="flex: 1; margin: 0 10px; background: #e9ecef; height: 20px; border-radius: 10px; overflow: hidden;">
+                                    <div style="height: 100%; background: #667eea; width: ${barWidth}%; transition: width 0.3s;"></div>
+                                </div>
+                                <div style="width: 40px; text-align: right; font-weight: bold; color: #333;">${workout.reps}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            container.appendChild(fallbackDiv);
         }
 
         // Export/Import Functions
