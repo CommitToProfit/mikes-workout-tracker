@@ -562,7 +562,7 @@
 
             const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            historyContainer.innerHTML = sortedData.map(workout => {
+            historyContainer.innerHTML = sortedData.map((workout, index) => {
                 const date = new Date(workout.date);
                 const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 
