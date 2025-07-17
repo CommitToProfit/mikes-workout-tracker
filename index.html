@@ -1,14 +1,4 @@
-<!-- Import Confirmation Modal -->
-    <div id="import-modal" class="modal">
-        <div class="modal-content">
-            <h3>Import Data</h3>
-            <p id="import-message">This will replace all your current workout data. Are you sure?</p>
-            <div class="modal-buttons">
-                <button class="cancel-btn" onclick="hideImportModal()">Cancel</button>
-                <button class="confirm-btn" onclick="confirmImport()">Import</button>
-            </div>
-        </div>
-    </div><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -412,18 +402,7 @@
     <div id="add-exercise-modal" class="modal">
         <div class="modal-content">
             <h3>Add New Exercise</h3>
-            <div style="margin-bottom: 20px;">
-                <label for="new-exercise-name" style="display: block; margin-bottom: 10px; font-weight: 600;">Exercise Name:</label>
-                <input type="text" id="new-exercise-name" placeholder="Exercise name (e.g., Pull-ups)" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;">
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label for="exercise-type-select" style="display: block; margin-bottom: 10px; font-weight: 600;">Exercise Type:</label>
-                <select id="exercise-type-select" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;">
-                    <option value="reps">Reps (Push-ups, Pull-ups, Squats)</option>
-                    <option value="time">Time (Dead-hang, Plank, Wall-sit)</option>
-                    <option value="weight-reps">Weight + Reps (Bench Press, Deadlift)</option>
-                </select>
-            </div>
+            <input type="text" id="new-exercise-name" placeholder="Exercise name (e.g., Pull-ups)">
             <div class="modal-buttons">
                 <button class="cancel-btn" onclick="hideAddExerciseModal()">Cancel</button>
                 <button class="confirm-btn" onclick="addNewExercise()">Add</button>
@@ -463,10 +442,21 @@
         </div>
     </div>
 
+    <!-- Import Confirmation Modal -->
+    <div id="import-modal" class="modal">
+        <div class="modal-content">
+            <h3>Import Data</h3>
+            <p id="import-message">This will replace all your current workout data. Are you sure?</p>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="hideImportModal()">Cancel</button>
+                <button class="confirm-btn" onclick="confirmImport()">Import</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Data storage
         let exercises = JSON.parse(localStorage.getItem('exercises')) || ['pushups'];
-        let exerciseTypes = JSON.parse(localStorage.getItem('exerciseTypes')) || {'pushups': 'reps'};
         let workoutData = JSON.parse(localStorage.getItem('workoutData')) || {};
         let importedData = null; // Store data to import
         let editingWorkoutIndex = -1; // Track which workout is being edited
@@ -484,7 +474,6 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             populateExerciseSelector();
-            updateWorkoutInput();
             updateStats();
             displayWorkoutHistory();
             initializeChart();
@@ -503,7 +492,6 @@
 
             selector.addEventListener('change', function() {
                 currentExercise = this.value;
-                updateWorkoutInput();
                 updateStats();
                 displayWorkoutHistory();
                 updateChart();
@@ -527,125 +515,7 @@
             }
         }
 
-        function updateWorkoutInput() {
-            const exerciseType = exerciseTypes[currentExercise] || 'reps';
-            const inputContainer = document.querySelector('.workout-input');
-            
-            // Clear existing input
-            inputContainer.innerHTML = '';
-            
-            const label = document.createElement('label');
-            label.textContent = getInputLabel(exerciseType);
-            inputContainer.appendChild(label);
-            
-            if (exerciseType === 'weight-reps') {
-                // Weight + Reps input
-                const weightDiv = document.createElement('div');
-                weightDiv.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px;';
-                
-                const weightInput = document.createElement('input');
-                weightInput.type = 'number';
-                weightInput.id = 'weight-input';
-                weightInput.placeholder = 'Weight (lbs)';
-                weightInput.min = '0';
-                weightInput.step = '0.5';
-                weightInput.style.cssText = 'flex: 1; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 18px; text-align: center;';
-                
-                const repsInput = document.createElement('input');
-                repsInput.type = 'number';
-                repsInput.id = 'reps-input';
-                repsInput.placeholder = 'Reps';
-                repsInput.min = '0';
-                repsInput.style.cssText = 'flex: 1; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 18px; text-align: center;';
-                
-                weightDiv.appendChild(weightInput);
-                weightDiv.appendChild(repsInput);
-                inputContainer.appendChild(weightDiv);
-                
-                // Add event listeners
-                weightInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') repsInput.focus();
-                });
-                repsInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') logWorkout();
-                });
-                
-            } else if (exerciseType === 'time') {
-                // Time input (seconds)
-                const timeInput = document.createElement('input');
-                timeInput.type = 'number';
-                timeInput.id = 'time-input';
-                timeInput.placeholder = 'Seconds';
-                timeInput.min = '0';
-                timeInput.style.cssText = 'width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 18px; text-align: center;';
-                inputContainer.appendChild(timeInput);
-                
-                timeInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') logWorkout();
-                });
-                
-            } else {
-                // Reps input (default)
-                const repsInput = document.createElement('input');
-                repsInput.type = 'number';
-                repsInput.id = 'reps-input';
-                repsInput.placeholder = 'Enter reps';
-                repsInput.min = '0';
-                repsInput.style.cssText = 'width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 18px; text-align: center;';
-                inputContainer.appendChild(repsInput);
-                
-                repsInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') logWorkout();
-                });
-            }
-        }
-        
-        function getInputLabel(exerciseType) {
-            if (exerciseType === 'time') {
-                return 'Duration (seconds):';
-            } else if (exerciseType === 'weight-reps') {
-                return 'Weight & Reps:';
-            } else {
-                return 'Reps Completed:';
-            }
-        }
-        
-        function formatWorkoutValue(workout, exercise) {
-            const exerciseType = exerciseTypes[exercise] || 'reps';
-            if (exerciseType === 'time') {
-                return formatTime(workout.value || workout.reps);
-            } else if (exerciseType === 'weight-reps') {
-                return `${workout.weight || 0} lbs × ${workout.reps || 0}`;
-            } else {
-                return workout.reps || workout.value || 0;
-            }
-        }
-        
-        function formatTime(seconds) {
-            if (seconds < 60) {
-                return `${seconds}s`;
-            } else {
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60;
-                return remainingSeconds > 0 ? `${minutes}:${remainingSeconds.toString().padStart(2, '0')}` : `${minutes}:00`;
-            }
-        }
-        
-        function calculateAverageValue(data, exercise) {
-            const exerciseType = exerciseTypes[exercise] || 'reps';
-            if (data.length === 0) return '0';
-            
-            if (exerciseType === 'time') {
-                const avgSeconds = Math.round(data.reduce((sum, workout) => sum + (workout.value || workout.reps), 0) / data.length);
-                return formatTime(avgSeconds);
-            } else if (exerciseType === 'weight-reps') {
-                const avgWeight = Math.round(data.reduce((sum, workout) => sum + (workout.weight || 0), 0) / data.length);
-                const avgReps = Math.round(data.reduce((sum, workout) => sum + (workout.reps || 0), 0) / data.length);
-                return `${avgWeight} lbs × ${avgReps}`;
-            } else {
-                return Math.round(data.reduce((sum, workout) => sum + (workout.reps || workout.value || 0), 0) / data.length);
-            }
-        }
+        function logWorkout() {
             const repsInput = document.getElementById('reps-input');
             const reps = parseInt(repsInput.value);
 
@@ -701,7 +571,7 @@
                 return `
                     <div class="history-item">
                         <div class="date">${formattedDate}</div>
-                        <div class="reps">${formatWorkoutValue(workout, currentExercise)}</div>
+                        <div class="reps">${workout.reps} reps</div>
                         <div class="workout-actions">
                             <button class="edit-btn" onclick="editWorkout(${index})" title="Edit workout">✏️</button>
                             <button class="delete-btn" onclick="deleteWorkout(${index})" title="Delete workout">🗑️</button>
@@ -718,12 +588,10 @@
         function hideAddExerciseModal() {
             document.getElementById('add-exercise-modal').style.display = 'none';
             document.getElementById('new-exercise-name').value = '';
-            document.getElementById('exercise-type-select').value = 'reps';
         }
 
         function addNewExercise() {
             const exerciseName = document.getElementById('new-exercise-name').value.trim().toLowerCase();
-            const exerciseType = document.getElementById('exercise-type-select').value;
             
             if (!exerciseName) {
                 alert('Please enter an exercise name');
@@ -736,11 +604,9 @@
             }
 
             exercises.push(exerciseName);
-            exerciseTypes[exerciseName] = exerciseType;
             workoutData[exerciseName] = [];
             
             localStorage.setItem('exercises', JSON.stringify(exercises));
-            localStorage.setItem('exerciseTypes', JSON.stringify(exerciseTypes));
             localStorage.setItem('workoutData', JSON.stringify(workoutData));
             
             populateExerciseSelector();
@@ -947,10 +813,9 @@
         function exportData() {
             const exportObj = {
                 exercises: exercises,
-                exerciseTypes: exerciseTypes,
                 workoutData: workoutData,
                 exportDate: new Date().toISOString(),
-                version: "2.0"
+                version: "1.0"
             };
 
             const dataStr = JSON.stringify(exportObj, null, 2);
@@ -981,15 +846,6 @@
                     if (!data.exercises || !data.workoutData) {
                         alert('Invalid file format. Please select a valid workout data export file.');
                         return;
-                    }
-
-                    // Handle version compatibility
-                    if (!data.exerciseTypes) {
-                        // Convert old format (assume all exercises are reps-based)
-                        data.exerciseTypes = {};
-                        data.exercises.forEach(exercise => {
-                            data.exerciseTypes[exercise] = 'reps';
-                        });
                     }
 
                     importedData = data;
@@ -1028,12 +884,10 @@
 
             try {
                 exercises = importedData.exercises;
-                exerciseTypes = importedData.exerciseTypes || {};
                 workoutData = importedData.workoutData;
                 
                 // Save to localStorage
                 localStorage.setItem('exercises', JSON.stringify(exercises));
-                localStorage.setItem('exerciseTypes', JSON.stringify(exerciseTypes));
                 localStorage.setItem('workoutData', JSON.stringify(workoutData));
                 
                 // Update UI
@@ -1198,751 +1052,13 @@
             }
         });
 
-    <script>
-        // Data storage
-        let exercises = JSON.parse(localStorage.getItem('exercises')) || ['pushups'];
-        let exerciseTypes = JSON.parse(localStorage.getItem('exerciseTypes')) || {'pushups': 'reps'};
-        let workoutData = JSON.parse(localStorage.getItem('workoutData')) || {};
-        let importedData = null; // Store data to import
-        let editingWorkoutIndex = -1; // Track which workout is being edited
-
-        // Initialize workout data for existing exercises
-        exercises.forEach(exercise => {
-            if (!workoutData[exercise]) {
-                workoutData[exercise] = [];
-            }
-        });
-
-        let currentExercise = 'pushups';
-        let progressChart = null;
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            populateExerciseSelector();
-            updateWorkoutInput();
-            updateStats();
-            displayWorkoutHistory();
-            initializeChart();
-        });
-
-        function populateExerciseSelector() {
-            const selector = document.getElementById('exercise-select');
-            selector.innerHTML = '';
-            
-            exercises.forEach(exercise => {
-                const option = document.createElement('option');
-                option.value = exercise;
-                option.textContent = exercise.charAt(0).toUpperCase() + exercise.slice(1);
-                selector.appendChild(option);
-            });
-
-            selector.addEventListener('change', function() {
-                currentExercise = this.value;
-                updateWorkoutInput();
-                updateStats();
-                displayWorkoutHistory();
-                updateChart();
-            });
-        }
-
-        function updateStats() {
-            const data = workoutData[currentExercise] || [];
-            const lastRepsEl = document.getElementById('last-reps');
-            const avgRepsEl = document.getElementById('avg-reps');
-
-            if (data.length > 0) {
-                const lastWorkout = data[data.length - 1];
-                const displayValue = formatWorkoutValue(lastWorkout, currentExercise);
-                lastRepsEl.textContent = displayValue;
-
-                const avgValue = calculateAverageValue(data, currentExercise);
-                avgRepsEl.textContent = avgValue;
-            } else {
-                lastRepsEl.textContent = '0';
-                avgRepsEl.textContent = '0';
-            }
-        }
-
-        function updateWorkoutInput() {
-            const exerciseType = exerciseTypes[currentExercise] || 'reps';
-            const inputContainer = document.querySelector('.workout-input');
-            
-            // Clear existing input
-            inputContainer.innerHTML = '';
-            
-            const label = document.createElement('label');
-            label.textContent = getInputLabel(exerciseType);
-            inputContainer.appendChild(label);
-            
-            if (exerciseType === 'weight-reps') {
-                // Weight + Reps input
-                const weightDiv = document.createElement('div');
-                weightDiv.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px;';
-                
-                const weightInput = document.createElement('input');
-                weightInput.type = 'number';
-                weightInput.id = 'weight-input';
-                weightInput.placeholder = 'Weight (lbs)';
-                weightInput.min = '0';
-                weightInput.step = '0.5';
-                weightInput.style.cssText = 'flex: 1; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 18px; text-align: center;';
-                
-                const repsInput = document.createElement('input');
-                repsInput.type = 'number';
-                repsInput.id = 'reps-input';
-                repsInput.placeholder = 'Reps';
-                repsInput.min = '0';
-                repsInput.style.cssText = 'flex: 1; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 18px; text-align: center;';
-                
-                weightDiv.appendChild(weightInput);
-                weightDiv.appendChild(repsInput);
-                inputContainer.appendChild(weightDiv);
-                
-                // Add event listeners
-                weightInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') repsInput.focus();
-                });
-                repsInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') logWorkout();
-                });
-                
-            } else if (exerciseType === 'time') {
-                // Time input (seconds)
-                const timeInput = document.createElement('input');
-                timeInput.type = 'number';
-                timeInput.id = 'time-input';
-                timeInput.placeholder = 'Seconds';
-                timeInput.min = '0';
-                timeInput.style.cssText = 'width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 18px; text-align: center;';
-                inputContainer.appendChild(timeInput);
-                
-                timeInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') logWorkout();
-                });
-                
-            } else {
-                // Reps input (default)
-                const repsInput = document.createElement('input');
-                repsInput.type = 'number';
-                repsInput.id = 'reps-input';
-                repsInput.placeholder = 'Enter reps';
-                repsInput.min = '0';
-                repsInput.style.cssText = 'width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 18px; text-align: center;';
-                inputContainer.appendChild(repsInput);
-                
-                repsInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') logWorkout();
-                });
-            }
-        }
-        
-        function getInputLabel(exerciseType) {
-            if (exerciseType === 'time') {
-                return 'Duration (seconds):';
-            } else if (exerciseType === 'weight-reps') {
-                return 'Weight & Reps:';
-            } else {
-                return 'Reps Completed:';
-            }
-        }
-        
-        function formatWorkoutValue(workout, exercise) {
-            const exerciseType = exerciseTypes[exercise] || 'reps';
-            if (exerciseType === 'time') {
-                return formatTime(workout.value || workout.reps);
-            } else if (exerciseType === 'weight-reps') {
-                return workout.weight + ' lbs × ' + workout.reps;
-            } else {
-                return workout.reps || workout.value || 0;
-            }
-        }
-        
-        function formatTime(seconds) {
-            if (seconds < 60) {
-                return seconds + 's';
-            } else {
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60;
-                return remainingSeconds > 0 ? minutes + ':' + remainingSeconds.toString().padStart(2, '0') : minutes + ':00';
-            }
-        }
-        
-        function calculateAverageValue(data, exercise) {
-            const exerciseType = exerciseTypes[exercise] || 'reps';
-            if (data.length === 0) return '0';
-            
-            if (exerciseType === 'time') {
-                const avgSeconds = Math.round(data.reduce((sum, workout) => sum + (workout.value || workout.reps), 0) / data.length);
-                return formatTime(avgSeconds);
-            } else if (exerciseType === 'weight-reps') {
-                const avgWeight = Math.round(data.reduce((sum, workout) => sum + (workout.weight || 0), 0) / data.length);
-                const avgReps = Math.round(data.reduce((sum, workout) => sum + (workout.reps || 0), 0) / data.length);
-                return avgWeight + ' lbs × ' + avgReps;
-            } else {
-                return Math.round(data.reduce((sum, workout) => sum + (workout.reps || workout.value || 0), 0) / data.length);
-            }
-        }
-
-        function logWorkout() {
-            const exerciseType = exerciseTypes[currentExercise] || 'reps';
-            let workout = {
-                date: new Date().toISOString(),
-                exercise: currentExercise
-            };
-            
-            if (exerciseType === 'weight-reps') {
-                const weight = parseFloat(document.getElementById('weight-input').value);
-                const reps = parseInt(document.getElementById('reps-input').value);
-                
-                if (!weight || weight <= 0 || !reps || reps <= 0) {
-                    alert('Please enter valid weight and reps');
-                    return;
-                }
-                
-                workout.weight = weight;
-                workout.reps = reps;
-                
-            } else if (exerciseType === 'time') {
-                const time = parseInt(document.getElementById('time-input').value);
-                
-                if (!time || time <= 0) {
-                    alert('Please enter a valid time in seconds');
-                    return;
-                }
-                
-                workout.value = time;
-                
-            } else {
-                const reps = parseInt(document.getElementById('reps-input').value);
-                
-                if (!reps || reps <= 0) {
-                    alert('Please enter a valid number of reps');
-                    return;
-                }
-                
-                workout.reps = reps;
-            }
-
-            if (!workoutData[currentExercise]) {
-                workoutData[currentExercise] = [];
-            }
-
-            workoutData[currentExercise].push(workout);
-            localStorage.setItem('workoutData', JSON.stringify(workoutData));
-
-            // Clear inputs
-            if (exerciseType === 'weight-reps') {
-                document.getElementById('weight-input').value = '';
-                document.getElementById('reps-input').value = '';
-            } else if (exerciseType === 'time') {
-                document.getElementById('time-input').value = '';
-            } else {
-                document.getElementById('reps-input').value = '';
-            }
-            
-            updateStats();
-            displayWorkoutHistory();
-            updateChart();
-
-            // Show success feedback
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = 'Logged! 🎉';
-            button.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            }, 2000);
-        }
-
-        function displayWorkoutHistory() {
-            const historyContainer = document.getElementById('workout-history');
-            const data = workoutData[currentExercise] || [];
-
-            if (data.length === 0) {
-                historyContainer.innerHTML = '<div class="no-data">No workouts recorded yet. Start your first workout!</div>';
-                return;
-            }
-
-            const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            historyContainer.innerHTML = sortedData.map((workout, index) => {
-                const date = new Date(workout.date);
-                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                
-                return '<div class="history-item">' +
-                    '<div class="date">' + formattedDate + '</div>' +
-                    '<div class="reps">' + formatWorkoutValue(workout, currentExercise) + '</div>' +
-                    '<div class="workout-actions">' +
-                        '<button class="edit-btn" onclick="editWorkout(' + index + ')" title="Edit workout">✏️</button>' +
-                        '<button class="delete-btn" onclick="deleteWorkout(' + index + ')" title="Delete workout">🗑️</button>' +
-                    '</div>' +
-                '</div>';
-            }).join('');
-        }
-
-        function showAddExerciseModal() {
-            document.getElementById('add-exercise-modal').style.display = 'block';
-        }
-
-        function hideAddExerciseModal() {
-            document.getElementById('add-exercise-modal').style.display = 'none';
-            document.getElementById('new-exercise-name').value = '';
-            document.getElementById('exercise-type-select').value = 'reps';
-        }
-
-        function addNewExercise() {
-            const exerciseName = document.getElementById('new-exercise-name').value.trim().toLowerCase();
-            const exerciseType = document.getElementById('exercise-type-select').value;
-            
-            if (!exerciseName) {
-                alert('Please enter an exercise name');
-                return;
-            }
-
-            if (exercises.includes(exerciseName)) {
-                alert('Exercise already exists');
-                return;
-            }
-
-            exercises.push(exerciseName);
-            exerciseTypes[exerciseName] = exerciseType;
-            workoutData[exerciseName] = [];
-            
-            localStorage.setItem('exercises', JSON.stringify(exercises));
-            localStorage.setItem('exerciseTypes', JSON.stringify(exerciseTypes));
-            localStorage.setItem('workoutData', JSON.stringify(workoutData));
-            
-            populateExerciseSelector();
-            hideAddExerciseModal();
-        }
-
-        function showTab(tabName) {
-            // Update tab buttons
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tabName + '-tab').classList.add('active');
-
-            if (tabName === 'progress') {
-                updateChart();
-            }
-        }
-
-        function initializeChart() {
-            const canvas = document.getElementById('progress-chart');
-            const ctx = canvas.getContext('2d');
-            
-            // Simple chart implementation
-            updateChart();
-        }
-
-        function updateChart() {
-            const canvas = document.getElementById('progress-chart');
-            const data = workoutData[currentExercise] || [];
-
-            // Try to render canvas chart first
-            try {
-                const ctx = canvas.getContext('2d');
-                
-                // Clear canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                if (data.length === 0) {
-                    ctx.fillStyle = '#666';
-                    ctx.font = '16px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('No data to display', canvas.width / 2, canvas.height / 2);
-                    return;
-                }
-
-                // Set canvas size
-                canvas.width = canvas.offsetWidth;
-                canvas.height = canvas.offsetHeight;
-
-                if (canvas.width === 0 || canvas.height === 0) {
-                    throw new Error('Canvas size is zero');
-                }
-
-                const padding = 40;
-                const chartWidth = canvas.width - 2 * padding;
-                const chartHeight = canvas.height - 2 * padding;
-
-                // Get max reps for scaling
-                const maxReps = Math.max(...data.map(d => d.reps || d.value || 0));
-                const minReps = Math.min(...data.map(d => d.reps || d.value || 0));
-                const repsRange = maxReps - minReps || 1;
-
-                // Draw axes
-                ctx.strokeStyle = '#ccc';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(padding, padding);
-                ctx.lineTo(padding, padding + chartHeight);
-                ctx.lineTo(padding + chartWidth, padding + chartHeight);
-                ctx.stroke();
-
-                // Draw data points and lines
-                if (data.length > 1) {
-                    ctx.strokeStyle = '#667eea';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-
-                    data.forEach((workout, index) => {
-                        const x = padding + (index / (data.length - 1)) * chartWidth;
-                        const y = padding + chartHeight - (((workout.reps || workout.value || 0) - minReps) / repsRange) * chartHeight;
-                        
-                        if (index === 0) {
-                            ctx.moveTo(x, y);
-                        } else {
-                            ctx.lineTo(x, y);
-                        }
-                    });
-                    ctx.stroke();
-                }
-
-                // Draw data points
-                ctx.fillStyle = '#667eea';
-                data.forEach((workout, index) => {
-                    const x = padding + (index / Math.max(data.length - 1, 1)) * chartWidth;
-                    const y = padding + chartHeight - (((workout.reps || workout.value || 0) - minReps) / repsRange) * chartHeight;
-                    
-                    ctx.beginPath();
-                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
-                    ctx.fill();
-                });
-
-                // Draw labels
-                ctx.fillStyle = '#666';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                
-                // Y-axis labels
-                ctx.textAlign = 'right';
-                for (let i = 0; i <= 5; i++) {
-                    const value = minReps + (repsRange * i / 5);
-                    const y = padding + chartHeight - (i / 5) * chartHeight;
-                    ctx.fillText(Math.round(value), padding - 10, y + 4);
-                }
-
-                // Title
-                ctx.fillStyle = '#333';
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1) + ' Progress', canvas.width / 2, 25);
-
-            } catch (error) {
-                // Fallback to text-based progress display
-                console.log('Canvas rendering failed, showing text fallback:', error);
-                showTextProgress(data);
-            }
-        }
-
-        function showTextProgress(data) {
-            const canvas = document.getElementById('progress-chart');
-            const container = canvas.parentElement;
-            
-            // Hide canvas and show text-based progress
-            canvas.style.display = 'none';
-            
-            // Remove any existing fallback
-            const existingFallback = container.querySelector('.progress-fallback');
-            if (existingFallback) {
-                existingFallback.remove();
-            }
-            
-            const fallbackDiv = document.createElement('div');
-            fallbackDiv.className = 'progress-fallback';
-            fallbackDiv.style.cssText = 'padding: 20px; background: white; border-radius: 10px; margin-top: 20px;';
-            
-            if (data.length === 0) {
-                fallbackDiv.innerHTML = '<div class="no-data">No data to display</div>';
-                container.appendChild(fallbackDiv);
-                return;
-            }
-            
-            const maxReps = Math.max(...data.map(d => d.reps || d.value || 0));
-            const minReps = Math.min(...data.map(d => d.reps || d.value || 0));
-            const improvement = data.length > 1 ? (data[data.length - 1].reps || data[data.length - 1].value || 0) - (data[0].reps || data[0].value || 0) : 0;
-            const avgReps = Math.round(data.reduce((sum, d) => sum + (d.reps || d.value || 0), 0) / data.length);
-            
-            fallbackDiv.innerHTML = '<h3 style="text-align: center; margin-bottom: 20px; color: #333;">' + 
-                currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1) + ' Progress</h3>' +
-                '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">' +
-                    '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">' +
-                        '<div style="font-size: 1.5em; font-weight: bold; color: #667eea;">' + maxReps + '</div>' +
-                        '<div style="font-size: 0.9em; color: #666;">Personal Best</div>' +
-                    '</div>' +
-                    '<div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">' +
-                        '<div style="font-size: 1.5em; font-weight: bold; color: ' + (improvement >= 0 ? '#28a745' : '#dc3545') + ';">' +
-                            (improvement > 0 ? '+' : '') + improvement +
-                        '</div>' +
-                        '<div style="font-size: 0.9em; color: #666;">Total Progress</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div style="text-align: center; margin-bottom: 20px;">' +
-                    '<div style="font-size: 1.2em; font-weight: bold; color: #333;">Average: ' + avgReps + '</div>' +
-                    '<div style="font-size: 0.9em; color: #666;">' + data.length + ' workouts completed</div>' +
-                '</div>';
-            
-            container.appendChild(fallbackDiv);
-        }
-
-        // Export/Import Functions
-        function exportData() {
-            const exportObj = {
-                exercises: exercises,
-                exerciseTypes: exerciseTypes,
-                workoutData: workoutData,
-                exportDate: new Date().toISOString(),
-                version: "2.0"
-            };
-
-            const dataStr = JSON.stringify(exportObj, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = 'workout-data-' + new Date().toISOString().split('T')[0] + '.json';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            alert('Data exported successfully! 📤\n\nSave this file somewhere safe as a backup.');
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    // Validate the data structure
-                    if (!data.exercises || !data.workoutData) {
-                        alert('Invalid file format. Please select a valid workout data export file.');
-                        return;
-                    }
-
-                    // Handle version compatibility
-                    if (!data.exerciseTypes) {
-                        // Convert old format (assume all exercises are reps-based)
-                        data.exerciseTypes = {};
-                        data.exercises.forEach(exercise => {
-                            data.exerciseTypes[exercise] = 'reps';
-                        });
-                    }
-
-                    importedData = data;
-                    
-                    // Show confirmation modal with preview
-                    const totalWorkouts = Object.values(data.workoutData).reduce((sum, workouts) => sum + workouts.length, 0);
-                    const exportDate = data.exportDate ? new Date(data.exportDate).toLocaleDateString() : 'Unknown';
-                    
-                    document.getElementById('import-message').innerHTML = 
-                        '<strong>Import Preview:</strong><br>' +
-                        '• ' + data.exercises.length + ' exercises<br>' +
-                        '• ' + totalWorkouts + ' total workouts<br>' +
-                        '• Export date: ' + exportDate + '<br><br>' +
-                        'This will replace all your current data. Continue?';
-                    
-                    document.getElementById('import-modal').style.display = 'block';
-                    
-                } catch (error) {
-                    alert('Error reading file. Please make sure it\'s a valid JSON export file.');
-                }
-            };
-            
-            reader.readAsText(file);
-            // Clear the input so same file can be selected again
-            event.target.value = '';
-        }
-
-        function hideImportModal() {
-            document.getElementById('import-modal').style.display = 'none';
-            importedData = null;
-        }
-
-        function confirmImport() {
-            if (!importedData) return;
-
-            try {
-                exercises = importedData.exercises;
-                exerciseTypes = importedData.exerciseTypes || {};
-                workoutData = importedData.workoutData;
-                
-                // Save to localStorage
-                localStorage.setItem('exercises', JSON.stringify(exercises));
-                localStorage.setItem('exerciseTypes', JSON.stringify(exerciseTypes));
-                localStorage.setItem('workoutData', JSON.stringify(workoutData));
-                
-                // Update UI
-                populateExerciseSelector();
-                updateStats();
-                displayWorkoutHistory();
-                updateChart();
-                
-                hideImportModal();
-                alert('Data imported successfully! 📥\n\nAll your exercises and workout history have been restored.');
-                
-            } catch (error) {
-                alert('Error importing data. Please try again or contact support.');
-            }
-        }
-
-        // Edit/Delete Workout Functions
-        function editWorkout(index) {
-            const data = workoutData[currentExercise] || [];
-            if (index < 0 || index >= data.length) return;
-
-            const workout = data[index];
-            editingWorkoutIndex = index;
-
-            // Populate edit form
-            populateEditExerciseSelector();
-            document.getElementById('edit-exercise-select').value = currentExercise;
-            document.getElementById('edit-reps-input').value = workout.reps || workout.value || 0;
-
-            // Show modal
-            document.getElementById('edit-workout-modal').style.display = 'block';
-        }
-
-        function populateEditExerciseSelector() {
-            const selector = document.getElementById('edit-exercise-select');
-            selector.innerHTML = '';
-            
-            exercises.forEach(exercise => {
-                const option = document.createElement('option');
-                option.value = exercise;
-                option.textContent = exercise.charAt(0).toUpperCase() + exercise.slice(1);
-                selector.appendChild(option);
-            });
-        }
-
-        function hideEditWorkoutModal() {
-            document.getElementById('edit-workout-modal').style.display = 'none';
-            editingWorkoutIndex = -1;
-        }
-
-        function saveWorkoutEdit() {
-            if (editingWorkoutIndex === -1) return;
-
-            const newExercise = document.getElementById('edit-exercise-select').value;
-            const newReps = parseInt(document.getElementById('edit-reps-input').value);
-
-            if (!newReps || newReps <= 0) {
-                alert('Please enter a valid number of reps');
-                return;
-            }
-
-            // Get the workout being edited
-            const oldData = workoutData[currentExercise] || [];
-            const workout = oldData[editingWorkoutIndex];
-
-            // Remove from old exercise
-            oldData.splice(editingWorkoutIndex, 1);
-
-            // Update workout data
-            workout.reps = newReps;
-            workout.exercise = newExercise;
-
-            // Add to new exercise (could be same exercise)
-            if (!workoutData[newExercise]) {
-                workoutData[newExercise] = [];
-            }
-            workoutData[newExercise].push(workout);
-
-            // Sort by date to maintain chronological order
-            workoutData[newExercise].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            // Save to localStorage
-            localStorage.setItem('workoutData', JSON.stringify(workoutData));
-
-            // Update UI
-            updateStats();
-            displayWorkoutHistory();
-            updateChart();
-
-            hideEditWorkoutModal();
-            
-            // Show success message
-            alert('Workout updated successfully! ' + newReps + ' ' + newExercise);
-        }
-
-        function deleteWorkout(index) {
-            const data = workoutData[currentExercise] || [];
-            if (index < 0 || index >= data.length) return;
-
-            const workout = data[index];
-            editingWorkoutIndex = index;
-
-            // Show confirmation with workout details
-            const date = new Date(workout.date);
-            const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            document.getElementById('delete-message').innerHTML = 
-                'Are you sure you want to delete this workout?<br><br>' +
-                '<strong>' + (workout.reps || workout.value || 0) + ' ' + currentExercise + '</strong><br>' +
-                formattedDate;
-
-            document.getElementById('delete-workout-modal').style.display = 'block';
-        }
-
-        function hideDeleteWorkoutModal() {
-            document.getElementById('delete-workout-modal').style.display = 'none';
-            editingWorkoutIndex = -1;
-        }
-
-        function confirmDeleteWorkout() {
-            if (editingWorkoutIndex === -1) return;
-
-            // Remove workout from data
-            const data = workoutData[currentExercise] || [];
-            data.splice(editingWorkoutIndex, 1);
-
-            // Save to localStorage
-            localStorage.setItem('workoutData', JSON.stringify(workoutData));
-
-            // Update UI
-            updateStats();
-            displayWorkoutHistory();
-            updateChart();
-
-            hideDeleteWorkoutModal();
-            alert('Workout deleted successfully!');
-        }
-
-        // Handle modal clicks
-        document.getElementById('add-exercise-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideAddExerciseModal();
-            }
-        });
-
-        document.getElementById('import-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideImportModal();
-            }
-        });
-
-        document.getElementById('edit-workout-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideEditWorkoutModal();
-            }
-        });
-
-        document.getElementById('delete-workout-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideDeleteWorkoutModal();
-            }
-        });
-
         // Handle Enter key in input fields
+        document.getElementById('reps-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                logWorkout();
+            }
+        });
+
         document.getElementById('new-exercise-name').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 addNewExercise();
