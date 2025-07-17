@@ -1,4 +1,14 @@
-<!DOCTYPE html>
+<!-- Import Confirmation Modal -->
+    <div id="import-modal" class="modal">
+        <div class="modal-content">
+            <h3>Import Data</h3>
+            <p id="import-message">This will replace all your current workout data. Are you sure?</p>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="hideImportModal()">Cancel</button>
+                <button class="confirm-btn" onclick="confirmImport()">Import</button>
+            </div>
+        </div>
+    </div><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -181,6 +191,29 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .workout-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-btn, .delete-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .edit-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .delete-btn:hover {
+            background: rgba(220, 53, 69, 0.1);
         }
 
         .history-item .date {
@@ -387,14 +420,34 @@
         </div>
     </div>
 
-    <!-- Import Confirmation Modal -->
-    <div id="import-modal" class="modal">
+    <!-- Edit Workout Modal -->
+    <div id="edit-workout-modal" class="modal">
         <div class="modal-content">
-            <h3>Import Data</h3>
-            <p id="import-message">This will replace all your current workout data. Are you sure?</p>
+            <h3>Edit Workout</h3>
+            <div style="margin-bottom: 20px;">
+                <label for="edit-exercise-select" style="display: block; margin-bottom: 10px; font-weight: 600;">Exercise:</label>
+                <select id="edit-exercise-select" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;">
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label for="edit-reps-input" style="display: block; margin-bottom: 10px; font-weight: 600;">Reps:</label>
+                <input type="number" id="edit-reps-input" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;" min="0">
+            </div>
             <div class="modal-buttons">
-                <button class="cancel-btn" onclick="hideImportModal()">Cancel</button>
-                <button class="confirm-btn" onclick="confirmImport()">Import</button>
+                <button class="cancel-btn" onclick="hideEditWorkoutModal()">Cancel</button>
+                <button class="confirm-btn" onclick="saveWorkoutEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-workout-modal" class="modal">
+        <div class="modal-content">
+            <h3>Delete Workout</h3>
+            <p id="delete-message">Are you sure you want to delete this workout?</p>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="hideDeleteWorkoutModal()">Cancel</button>
+                <button class="confirm-btn" style="background: #dc3545;" onclick="confirmDeleteWorkout()">Delete</button>
             </div>
         </div>
     </div>
@@ -404,6 +457,7 @@
         let exercises = JSON.parse(localStorage.getItem('exercises')) || ['pushups'];
         let workoutData = JSON.parse(localStorage.getItem('workoutData')) || {};
         let importedData = null; // Store data to import
+        let editingWorkoutIndex = -1; // Track which workout is being edited
 
         // Initialize workout data for existing exercises
         exercises.forEach(exercise => {
@@ -516,6 +570,10 @@
                     <div class="history-item">
                         <div class="date">${formattedDate}</div>
                         <div class="reps">${workout.reps} reps</div>
+                        <div class="workout-actions">
+                            <button class="edit-btn" onclick="editWorkout(${index})" title="Edit workout">✏️</button>
+                            <button class="delete-btn" onclick="deleteWorkout(${index})" title="Delete workout">🗑️</button>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -844,6 +902,129 @@
             }
         }
 
+        // Edit/Delete Workout Functions
+        function editWorkout(index) {
+            const data = workoutData[currentExercise] || [];
+            if (index < 0 || index >= data.length) return;
+
+            const workout = data[index];
+            editingWorkoutIndex = index;
+
+            // Populate edit form
+            populateEditExerciseSelector();
+            document.getElementById('edit-exercise-select').value = currentExercise;
+            document.getElementById('edit-reps-input').value = workout.reps;
+
+            // Show modal
+            document.getElementById('edit-workout-modal').style.display = 'block';
+        }
+
+        function populateEditExerciseSelector() {
+            const selector = document.getElementById('edit-exercise-select');
+            selector.innerHTML = '';
+            
+            exercises.forEach(exercise => {
+                const option = document.createElement('option');
+                option.value = exercise;
+                option.textContent = exercise.charAt(0).toUpperCase() + exercise.slice(1);
+                selector.appendChild(option);
+            });
+        }
+
+        function hideEditWorkoutModal() {
+            document.getElementById('edit-workout-modal').style.display = 'none';
+            editingWorkoutIndex = -1;
+        }
+
+        function saveWorkoutEdit() {
+            if (editingWorkoutIndex === -1) return;
+
+            const newExercise = document.getElementById('edit-exercise-select').value;
+            const newReps = parseInt(document.getElementById('edit-reps-input').value);
+
+            if (!newReps || newReps <= 0) {
+                alert('Please enter a valid number of reps');
+                return;
+            }
+
+            // Get the workout being edited
+            const oldData = workoutData[currentExercise] || [];
+            const workout = oldData[editingWorkoutIndex];
+
+            // Remove from old exercise
+            oldData.splice(editingWorkoutIndex, 1);
+
+            // Update workout data
+            workout.reps = newReps;
+            workout.exercise = newExercise;
+
+            // Add to new exercise (could be same exercise)
+            if (!workoutData[newExercise]) {
+                workoutData[newExercise] = [];
+            }
+            workoutData[newExercise].push(workout);
+
+            // Sort by date to maintain chronological order
+            workoutData[newExercise].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Save to localStorage
+            localStorage.setItem('workoutData', JSON.stringify(workoutData));
+
+            // Update UI
+            updateStats();
+            displayWorkoutHistory();
+            updateChart();
+
+            hideEditWorkoutModal();
+            
+            // Show success message
+            alert(`Workout updated successfully! ${newReps} ${newExercise}`);
+        }
+
+        function deleteWorkout(index) {
+            const data = workoutData[currentExercise] || [];
+            if (index < 0 || index >= data.length) return;
+
+            const workout = data[index];
+            editingWorkoutIndex = index;
+
+            // Show confirmation with workout details
+            const date = new Date(workout.date);
+            const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            document.getElementById('delete-message').innerHTML = `
+                Are you sure you want to delete this workout?<br><br>
+                <strong>${workout.reps} ${currentExercise}</strong><br>
+                ${formattedDate}
+            `;
+
+            document.getElementById('delete-workout-modal').style.display = 'block';
+        }
+
+        function hideDeleteWorkoutModal() {
+            document.getElementById('delete-workout-modal').style.display = 'none';
+            editingWorkoutIndex = -1;
+        }
+
+        function confirmDeleteWorkout() {
+            if (editingWorkoutIndex === -1) return;
+
+            // Remove workout from data
+            const data = workoutData[currentExercise] || [];
+            data.splice(editingWorkoutIndex, 1);
+
+            // Save to localStorage
+            localStorage.setItem('workoutData', JSON.stringify(workoutData));
+
+            // Update UI
+            updateStats();
+            displayWorkoutHistory();
+            updateChart();
+
+            hideDeleteWorkoutModal();
+            alert('Workout deleted successfully!');
+        }
+
         // Handle modal clicks
         document.getElementById('add-exercise-modal').addEventListener('click', function(e) {
             if (e.target === this) {
@@ -854,6 +1035,18 @@
         document.getElementById('import-modal').addEventListener('click', function(e) {
             if (e.target === this) {
                 hideImportModal();
+            }
+        });
+
+        document.getElementById('edit-workout-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideEditWorkoutModal();
+            }
+        });
+
+        document.getElementById('delete-workout-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideDeleteWorkoutModal();
             }
         });
 
