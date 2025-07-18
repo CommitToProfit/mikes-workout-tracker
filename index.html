@@ -334,6 +334,29 @@
             font-style: italic;
         }
 
+        .affiliate-banner {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .affiliate-banner h4 {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 1em;
+        }
+
+        .affiliate-banner img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .affiliate-banner img:hover {
+            transform: scale(1.02);
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 15px;
@@ -352,6 +375,14 @@
             
             .stats {
                 grid-template-columns: 1fr;
+            }
+
+            .affiliate-banner img {
+                border-radius: 8px;
+            }
+
+            .affiliate-banner h4 {
+                font-size: 0.9em;
             }
         }
     </style>
@@ -424,6 +455,15 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Affiliate Banner -->
+        <div class="card affiliate-banner">
+            <h4>Recommended for Your Workouts</h4>
+            <a href="https://www.meshbottles.com/bundles/family-pack-glass-32?aff=175" rel="nofollow" target="_blank">
+                <img src="https://www.affiliatly.com/affiliate_files/banners/33394/4_gls_32oz_2.jpg" 
+                     alt="Mesh Bottles - Stay Hydrated During Workouts">
+            </a>
         </div>
     </div>
 
