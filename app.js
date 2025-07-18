@@ -1,5 +1,5 @@
-// Data storage
-let exercises = JSON.parse(localStorage.getItem('exercises')) || ['pushups'];
+// Data storage with more default exercises
+let exercises = JSON.parse(localStorage.getItem('exercises')) || ['pushups', 'pull-ups', 'chin-ups'];
 let workoutData = JSON.parse(localStorage.getItem('workoutData')) || {};
 let importedData = null;
 let editingWorkoutIndex = -1;
@@ -28,7 +28,14 @@ function populateExerciseSelector() {
     exercises.forEach(exercise => {
         const option = document.createElement('option');
         option.value = exercise;
-        option.textContent = exercise.charAt(0).toUpperCase() + exercise.slice(1);
+        // Format display names properly
+        let displayName = exercise.charAt(0).toUpperCase() + exercise.slice(1);
+        if (exercise === 'pull-ups') {
+            displayName = 'Pull-ups (palms away)';
+        } else if (exercise === 'chin-ups') {
+            displayName = 'Chin-ups (palms toward you)';
+        }
+        option.textContent = displayName;
         selector.appendChild(option);
     });
 
@@ -197,10 +204,18 @@ function updateStatsView() {
     const improvement = data.length > 1 ? data[data.length - 1].reps - data[0].reps : 0;
     const avgReps = Math.round(data.reduce((sum, d) => sum + d.reps, 0) / data.length);
     
+    // Get display name for current exercise
+    let exerciseDisplayName = currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1);
+    if (currentExercise === 'pull-ups') {
+        exerciseDisplayName = 'Pull-ups';
+    } else if (currentExercise === 'chin-ups') {
+        exerciseDisplayName = 'Chin-ups';
+    }
+    
     statsContainer.innerHTML = 
         '<div style="background: white; border-radius: 15px; padding: 25px;">' +
             '<h3 style="text-align: center; margin-bottom: 25px; color: #333; font-size: 1.4em;">' +
-                currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1) + ' Progress' +
+                exerciseDisplayName + ' Progress' +
             '</h3>' +
             '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">' +
                 '<div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; color: white;">' +
@@ -320,11 +335,18 @@ function updateChart() {
             ctx.fillText(Math.round(value), padding - 10, y + 4);
         }
 
-        // Title
+        // Title - get proper display name
+        let exerciseDisplayName = currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1);
+        if (currentExercise === 'pull-ups') {
+            exerciseDisplayName = 'Pull-ups';
+        } else if (currentExercise === 'chin-ups') {
+            exerciseDisplayName = 'Chin-ups';
+        }
+        
         ctx.fillStyle = '#333';
         ctx.font = '16px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1) + ' Progress', canvas.width / 2, 25);
+        ctx.fillText(exerciseDisplayName + ' Progress', canvas.width / 2, 25);
 
     } catch (error) {
         console.log('Chart error:', error);
@@ -441,7 +463,14 @@ function populateEditExerciseSelector() {
     exercises.forEach(exercise => {
         const option = document.createElement('option');
         option.value = exercise;
-        option.textContent = exercise.charAt(0).toUpperCase() + exercise.slice(1);
+        // Format display names properly
+        let displayName = exercise.charAt(0).toUpperCase() + exercise.slice(1);
+        if (exercise === 'pull-ups') {
+            displayName = 'Pull-ups (palms away)';
+        } else if (exercise === 'chin-ups') {
+            displayName = 'Chin-ups (palms toward you)';
+        }
+        option.textContent = displayName;
         selector.appendChild(option);
     });
 }
