@@ -70,21 +70,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Data Management Section -->
-            <div style="border-top: 1px solid #e0e0e0; margin-top: 25px; padding-top: 20px;">
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex: 1; text-align: center;">
-                        <button class="button" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);" onclick="exportData()">📤 Backup Data</button>
-                        <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Save your workouts</div>
-                    </div>
-                    <div style="flex: 1; text-align: center;">
-                        <button class="button" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);" onclick="document.getElementById('import-file').click()">📥 Restore Data</button>
-                        <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Load saved workouts</div>
-                    </div>
-                </div>
-            </div>
-            <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
         </div>
 
         <!-- Affiliate Banner -->
@@ -107,6 +92,35 @@
                 </div>
                 <div style="margin-top: 10px; font-size: 0.85em; color: #888;">
                     — Mike, Lake Mary, FL • Verified Purchaser
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Fly-out Data Management Tab -->
+        <div class="data-flyout" id="dataFlyout">
+            <div class="flyout-overlay" onclick="closeFlyout()"></div>
+            <div class="flyout-tab" onclick="toggleFlyout()">
+                DATA
+            </div>
+            <div class="flyout-panel">
+                <button class="flyout-close" onclick="closeFlyout()">×</button>
+                
+                <div class="flyout-header">
+                    🛡️ Data Management
+                </div>
+                
+                <div class="flyout-actions">
+                    <button class="flyout-btn backup-btn" onclick="exportData()">
+                        💾 Backup Data
+                    </button>
+                    <button class="flyout-btn restore-btn" onclick="document.getElementById('import-file').click()">
+                        📥 Restore Data
+                    </button>
+                </div>
+                
+                <div class="flyout-info">
+                    <strong>Privacy Protected</strong><br>
+                    Your data stays on your device. Back up regularly - if your phone is lost or you clear browser data, your workouts will be gone forever!
                 </div>
             </div>
         </div>
@@ -178,6 +192,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Hidden file input for restore -->
+    <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
 
     <script src="app.js"></script>
 </body>
