@@ -4,7 +4,413 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workout Tracker</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .privacy-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1em;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .privacy-icon {
+            font-size: 1.2em;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .exercise-selector {
+            margin-bottom: 20px;
+        }
+
+        .exercise-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .exercise-selector select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        .exercise-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .workout-input {
+            margin-bottom: 25px;
+        }
+
+        .workout-input label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .workout-input input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .workout-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .view-toggle-btn {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .view-toggle-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .view-toggle-btn:hover:not(.active) {
+            background: #e0e0e0;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .workout-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-btn, .delete-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .edit-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .delete-btn:hover {
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .history-item .date {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .history-item .reps {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .affiliate-banner {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .affiliate-banner h4 {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 1em;
+        }
+
+        .affiliate-banner img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .affiliate-banner img:hover {
+            transform: scale(1.02);
+        }
+
+        /* NEW: Data Management Card Styles */
+        .data-management-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .data-management-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .data-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .data-btn {
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .data-btn .icon {
+            font-size: 24px;
+        }
+
+        .data-btn .label {
+            font-size: 14px;
+        }
+
+        .backup-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .backup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .restore-btn {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: white;
+        }
+
+        .restore-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .data-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 18px;
+            color: #6c757d;
+            font-size: 14px;
+            line-height: 1.5;
+            border-left: 4px solid #667eea;
+        }
+
+        .data-info strong {
+            color: #495057;
+        }
+
+        .data-info .highlight {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .privacy-subtitle {
+                font-size: 0.9em;
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .data-actions {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .affiliate-banner img {
+                border-radius: 8px;
+            }
+
+            .affiliate-banner h4 {
+                font-size: 0.9em;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -24,17 +430,19 @@
                 </div>
                 <select id="exercise-select">
                     <option value="pushups">Push-ups</option>
+                    <option value="pull-ups">Pull-ups (palms away)</option>
+                    <option value="chin-ups">Chin-ups (palms toward you)</option>
                 </select>
             </div>
 
             <div class="stats">
                 <div class="stat-card">
                     <h3>Last Workout</h3>
-                    <div class="value" id="last-reps">0</div>
+                    <div class="value" id="last-reps">25</div>
                 </div>
                 <div class="stat-card">
                     <h3>Average Reps</h3>
-                    <div class="value" id="avg-reps">0</div>
+                    <div class="value" id="avg-reps">22</div>
                 </div>
             </div>
 
@@ -53,7 +461,32 @@
             </div>
 
             <div id="history-tab" class="tab-content active">
-                <div id="workout-history"></div>
+                <div id="workout-history">
+                    <div class="history-item">
+                        <div class="date">7/19/2025 2:30 PM</div>
+                        <div class="reps">25 reps</div>
+                        <div class="workout-actions">
+                            <button class="edit-btn" title="Edit workout">✏️</button>
+                            <button class="delete-btn" title="Delete workout">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div class="date">7/17/2025 6:45 AM</div>
+                        <div class="reps">20 reps</div>
+                        <div class="workout-actions">
+                            <button class="edit-btn" title="Edit workout">✏️</button>
+                            <button class="delete-btn" title="Delete workout">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div class="date">7/15/2025 7:15 PM</div>
+                        <div class="reps">22 reps</div>
+                        <div class="workout-actions">
+                            <button class="edit-btn" title="Edit workout">✏️</button>
+                            <button class="delete-btn" title="Delete workout">🗑️</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="progress-tab" class="tab-content">
@@ -62,29 +495,39 @@
                     <button class="view-toggle-btn" id="chart-view-btn" onclick="showChartView()">📈 Chart</button>
                 </div>
                 <div id="stats-view">
-                    <!-- Stats content will be populated here -->
+                    <div class="no-data">Switch to History tab to see progress data</div>
                 </div>
                 <div id="chart-view" style="display: none;">
-                    <div class="chart-container">
-                        <canvas id="progress-chart"></canvas>
+                    <div style="height: 300px; background: #f8f9fa; border-radius: 10px; padding: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
+                        Chart View
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Data Management Section -->
-            <div style="border-top: 1px solid #e0e0e0; margin-top: 25px; padding-top: 20px;">
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex: 1; text-align: center;">
-                        <button class="button" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);" onclick="exportData()">📤 Backup Data</button>
-                        <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Save your workouts</div>
-                    </div>
-                    <div style="flex: 1; text-align: center;">
-                        <button class="button" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);" onclick="document.getElementById('import-file').click()">📥 Restore Data</button>
-                        <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Load saved workouts</div>
-                    </div>
-                </div>
+        <!-- NEW: Separate Data Management Card -->
+        <div class="data-management-card">
+            <h3>
+                🛡️ Data Management
+            </h3>
+            
+            <div class="data-actions">
+                <button class="data-btn backup-btn" onclick="exportData()">
+                    <div class="icon">💾</div>
+                    <div class="label">Backup Data</div>
+                </button>
+                <button class="data-btn restore-btn" onclick="document.getElementById('import-file').click()">
+                    <div class="icon">📥</div>
+                    <div class="label">Restore Data</div>
+                </button>
             </div>
-            <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+            
+            <div class="data-info">
+                <strong>Your Privacy is Protected</strong><br>
+                All your workout data is stored <span class="highlight">locally on your device</span> - we never see or store your information on our servers. 
+                <br><br>
+                <strong>⚠️ Important:</strong> Make sure to backup your data regularly. If your phone is lost, damaged, or you clear your browser data, your workout history will be permanently lost unless you have a backup.
+            </div>
         </div>
 
         <!-- Affiliate Banner -->
@@ -110,75 +553,45 @@
                 </div>
             </div>
         </div>
+
+        <!-- Hidden file input for restore -->
+        <input type="file" id="import-file" accept=".json" style="display: none;" onchange="alert('Restore functionality would work here')">
     </div>
 
-    <!-- Add Exercise Modal -->
-    <div id="add-exercise-modal" class="modal">
-        <div class="modal-content">
-            <h3>Add New Exercise</h3>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #555;">Exercise Name:</label>
-                <input type="text" id="new-exercise-name" placeholder="Exercise name (e.g., Squats)" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 20px;">
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #555;">Tracking Type:</label>
-                <select id="exercise-type-select" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; background: white;">
-                    <option value="reps">Reps Only (ex: Push-ups, Pull-ups, Squats)</option>
-                    <option value="time">Time (ex: Dead-hang, Plank, Wall-sit)</option>
-                    <option value="weight-reps">Reps and Weight (ex: Bench Press, Deadlift)</option>
-                </select>
-            </div>
-            <div class="modal-buttons">
-                <button class="cancel-btn" onclick="hideAddExerciseModal()">Cancel</button>
-                <button class="confirm-btn" onclick="addNewExercise()">Add</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
 
-    <!-- Edit Workout Modal -->
-    <div id="edit-workout-modal" class="modal">
-        <div class="modal-content">
-            <h3>Edit Workout</h3>
-            <div style="margin-bottom: 20px;">
-                <label for="edit-exercise-select" style="display: block; margin-bottom: 10px; font-weight: 600;">Exercise:</label>
-                <select id="edit-exercise-select" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;">
-                </select>
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label for="edit-reps-input" style="display: block; margin-bottom: 10px; font-weight: 600;">Reps:</label>
-                <input type="number" id="edit-reps-input" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;" min="0">
-            </div>
-            <div class="modal-buttons">
-                <button class="cancel-btn" onclick="hideEditWorkoutModal()">Cancel</button>
-                <button class="confirm-btn" onclick="saveWorkoutEdit()">Save Changes</button>
-            </div>
-        </div>
-    </div>
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
 
-    <!-- Delete Confirmation Modal -->
-    <div id="delete-workout-modal" class="modal">
-        <div class="modal-content">
-            <h3>Delete Workout</h3>
-            <p id="delete-message">Are you sure you want to delete this workout?</p>
-            <div class="modal-buttons">
-                <button class="cancel-btn" onclick="hideDeleteWorkoutModal()">Cancel</button>
-                <button class="confirm-btn" style="background: #dc3545;" onclick="confirmDeleteWorkout()">Delete</button>
-            </div>
-        </div>
-    </div>
+        function showStatsView() {
+            document.getElementById('stats-view-btn').classList.add('active');
+            document.getElementById('chart-view-btn').classList.remove('active');
+            document.getElementById('stats-view').style.display = 'block';
+            document.getElementById('chart-view').style.display = 'none';
+        }
 
-    <!-- Import Confirmation Modal -->
-    <div id="import-modal" class="modal">
-        <div class="modal-content">
-            <h3>Import Data</h3>
-            <p id="import-message">This will replace all your current workout data. Are you sure?</p>
-            <div class="modal-buttons">
-                <button class="cancel-btn" onclick="hideImportModal()">Cancel</button>
-                <button class="confirm-btn" onclick="confirmImport()">Import</button>
-            </div>
-        </div>
-    </div>
+        function showChartView() {
+            document.getElementById('chart-view-btn').classList.add('active');
+            document.getElementById('stats-view-btn').classList.remove('active');
+            document.getElementById('chart-view').style.display = 'block';
+            document.getElementById('stats-view').style.display = 'none';
+        }
 
-    <script src="app.js"></script>
+        function logWorkout() {
+            alert('Log workout functionality would work here');
+        }
+
+        function showAddExerciseModal() {
+            alert('Add exercise modal would open here');
+        }
+
+        function exportData() {
+            alert('Backup functionality would work here');
+        }
+    </script>
 </body>
 </html>
