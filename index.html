@@ -46,8 +46,14 @@
             <button class="button" onclick="logWorkout()">Log Workout</button>
             
             <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="button" style="flex: 1; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);" onclick="exportData()">📤 Export Data</button>
-                <button class="button" style="flex: 1; background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);" onclick="document.getElementById('import-file').click()">📥 Import Data</button>
+                <div style="flex: 1; text-align: center;">
+                    <button class="button" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);" onclick="exportData()">📤 Backup Data</button>
+                    <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Save your workouts</div>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <button class="button" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);" onclick="document.getElementById('import-file').click()">📥 Restore Data</button>
+                    <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Load saved workouts</div>
+                </div>
             </div>
             <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
         </div>
