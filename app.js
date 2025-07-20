@@ -365,15 +365,21 @@ function exportData() {
     const dataStr = JSON.stringify(exportObj, null, 2);
     const dataBlob = new Blob([dataStr], {type: 'application/json'});
     
+    const today = new Date().toISOString().split('T')[0];
+    const fileName = 'workout-data-' + today + '.json';
+    
     const link = document.createElement('a');
     link.href = URL.createObjectURL(dataBlob);
-    link.download = 'workout-data-' + new Date().toISOString().split('T')[0] + '.json';
+    link.download = fileName;
     
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    alert('Data exported successfully! 📤');
+    // Better success message with file info
+    const totalWorkouts = Object.values(workoutData).reduce((sum, workouts) => sum + workouts.length, 0);
+    
+    alert(`✅ Backup successful!\n\nFile: ${fileName}\nExercises: ${exercises.length}\nTotal workouts: ${totalWorkouts}\n\n📱 Mobile tip: Check your Downloads folder or look for the file in your device's file manager.\n\n💡 Remember to email this file to yourself for extra backup!`);
 }
 
 function importData(event) {
