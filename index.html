@@ -96,6 +96,28 @@
             </div>
         </div>
 
+        <!-- Data Management Card -->
+        <div class="card">
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1; text-align: center;">
+                    <button class="button" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);" onclick="exportData()">📤 Backup Data</button>
+                    <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Save your workouts</div>
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <button class="button" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);" onclick="document.getElementById('import-file').click()">📥 Restore Data</button>
+                    <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Load saved workouts</div>
+                </div>
+            </div>
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; margin-top: 20px; color: #6c757d; font-size: 14px; line-height: 1.5; border-left: 4px solid #667eea;">
+                <strong style="color: #495057;">Your Privacy is Protected</strong><br>
+                All your workout data is stored locally on your device - we never see or store your information on our servers. 
+                <br><br>
+                <strong>⚠️ Important:</strong> Make sure to backup your data regularly. If your phone is lost, damaged, or you clear your browser data, your workout history will be permanently lost unless you have a backup.
+                <br><br>
+                <strong>💡 Tip:</strong> We recommend you email your workout data to yourself as an extra backup.
+            </div>
+        </div>
+
         <!-- NEW: Fly-out Data Management Tab -->
         <div class="data-flyout" id="dataFlyout">
             <div class="flyout-overlay" onclick="closeFlyout()"></div>
