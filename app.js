@@ -374,7 +374,6 @@ function exportData() {
     document.body.removeChild(link);
 
     alert('Data exported successfully! 📤');
-    closeFlyout(); // Close flyout after export
 }
 
 function importData(event) {
@@ -557,17 +556,6 @@ function confirmDeleteWorkout() {
     alert('Workout deleted successfully!');
 }
 
-// Fly-out functionality
-function toggleFlyout() {
-    const flyout = document.getElementById('dataFlyout');
-    flyout.classList.toggle('open');
-}
-
-function closeFlyout() {
-    const flyout = document.getElementById('dataFlyout');
-    flyout.classList.remove('open');
-}
-
 // Modal click handlers
 document.getElementById('add-exercise-modal').addEventListener('click', function(e) {
     if (e.target === this) {
@@ -603,12 +591,5 @@ document.getElementById('reps-input').addEventListener('keypress', function(e) {
 document.getElementById('new-exercise-name').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         addNewExercise();
-    }
-});
-
-// Close flyout when clicking outside or pressing ESC
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeFlyout();
     }
 });
