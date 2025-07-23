@@ -91,11 +91,11 @@ function logWorkout() {
     displayWorkoutHistory();
     updateProgressView();
 
-    // Show success feedback
+    // Show success feedback with baby blue color
     const button = event.target;
     const originalText = button.textContent;
     button.textContent = 'Logged! 🎉';
-    button.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+    button.style.background = 'rgb(79, 172, 254)';
     setTimeout(() => {
         button.textContent = originalText;
         button.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
@@ -113,16 +113,23 @@ function displayWorkoutHistory() {
 
     const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    historyContainer.innerHTML = sortedData.map((workout, index) => {
+    historyContainer.innerHTML = sortedData.map((workout, sortedIndex) => {
         const date = new Date(workout.date);
         const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        // Find the original index in the unsorted array
+        const originalIndex = data.findIndex(w => 
+            w.date === workout.date && 
+            w.reps === workout.reps && 
+            w.exercise === workout.exercise
+        );
         
         return '<div class="history-item">' +
             '<div class="date">' + formattedDate + '</div>' +
             '<div class="reps">' + workout.reps + ' reps</div>' +
             '<div class="workout-actions">' +
-                '<button class="edit-btn" onclick="editWorkout(' + index + ')" title="Edit workout">✏️</button>' +
-                '<button class="delete-btn" onclick="deleteWorkout(' + index + ')" title="Delete workout">🗑️</button>' +
+                '<button class="edit-btn" onclick="editWorkout(' + originalIndex + ')" title="Edit workout">✏️</button>' +
+                '<button class="delete-btn" onclick="deleteWorkout(' + originalIndex + ')" title="Delete workout">🗑️</button>' +
             '</div>' +
         '</div>';
     }).join('');
