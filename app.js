@@ -169,7 +169,7 @@ function updateStats() {
             const repsData = data.filter(w => w.reps !== undefined).map(w => w.reps);
             if (repsData.length > 0) {
                 const avgReps = Math.round(repsData.reduce((sum, reps) => sum + reps, 0) / repsData.length);
-                avgRepsEl.textContent = avgReps + ' reps avg';
+                avgRepsEl.textContent = avgReps + ' reps';
             } else {
                 avgRepsEl.textContent = '0';
             }
@@ -177,7 +177,7 @@ function updateStats() {
             const weightData = data.filter(w => w.weight !== undefined).map(w => w.weight);
             if (weightData.length > 0) {
                 const avgWeight = Math.round((weightData.reduce((sum, weight) => sum + weight, 0) / weightData.length) * 10) / 10;
-                avgRepsEl.textContent = avgWeight + ' lbs avg';
+                avgRepsEl.textContent = avgWeight + ' lbs';
             } else {
                 avgRepsEl.textContent = '0';
             }
