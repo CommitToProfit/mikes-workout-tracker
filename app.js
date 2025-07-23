@@ -164,7 +164,7 @@ function updateStats() {
         }
         lastRepsEl.textContent = lastDisplay || '0';
 
-        // Calculate averages for reps (if tracked)
+        // Calculate averages for the primary metric
         if (metrics.includes('reps')) {
             const repsData = data.filter(w => w.reps !== undefined).map(w => w.reps);
             if (repsData.length > 0) {
@@ -178,6 +178,23 @@ function updateStats() {
             if (weightData.length > 0) {
                 const avgWeight = Math.round((weightData.reduce((sum, weight) => sum + weight, 0) / weightData.length) * 10) / 10;
                 avgRepsEl.textContent = avgWeight + ' lbs';
+            } else {
+                avgRepsEl.textContent = '0';
+            }
+        } else if (metrics.includes('time')) {
+            const timeData = data.filter(w => w.time !== undefined).map(w => w.time);
+            if (timeData.length > 0) {
+                // Convert times to seconds for averaging
+                const timeInSeconds = timeData.map(timeStr => {
+                    const parts = timeStr.split(':');
+                    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                });
+                const avgSeconds = Math.round(timeInSeconds.reduce((sum, seconds) => sum + seconds, 0) / timeInSeconds.length);
+                
+                // Convert back to mm:ss format
+                const avgMinutes = Math.floor(avgSeconds / 60);
+                const remainingSeconds = avgSeconds % 60;
+                avgRepsEl.textContent = avgMinutes + ':' + remainingSeconds.toString().padStart(2, '0');
             } else {
                 avgRepsEl.textContent = '0';
             }
