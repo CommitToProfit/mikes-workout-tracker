@@ -389,6 +389,7 @@ function hideEditExerciseModal() {
 
 function updateExercise() {
     const currentData = workoutData[currentExercise] || [];
+    const newName = document.getElementById('edit-exercise-name').value.trim().toLowerCase();
     const newMetrics = [];
     
     if (document.getElementById('edit-track-reps').checked) newMetrics.push('reps');
@@ -400,6 +401,17 @@ function updateExercise() {
         return;
     }
     
+    if (!newName) {
+        alert('Please enter an exercise name');
+        return;
+    }
+    
+    // Check if name is changing and new name already exists
+    if (newName !== currentExercise && exercises.find(ex => ex.name === newName)) {
+        alert('An exercise with this name already exists');
+        return;
+    }
+    
     const exercise = exercises.find(ex => ex.name === currentExercise);
     const oldMetrics = exercise.metrics;
     
@@ -407,13 +419,41 @@ function updateExercise() {
     const addingMetrics = newMetrics.some(metric => !oldMetrics.includes(metric));
     
     if (addingMetrics && currentData.length > 0) {
-        // Show hybrid options
+        // Store the new name for later use in the hybrid options
+        document.getElementById('edit-exercise-name').setAttribute('data-new-name', newName);
         showMetricUpdateOptions(newMetrics);
     } else {
         // Safe to update directly
+        
+        // Handle name change
+        if (newName !== currentExercise) {
+            // Update exercise name
+            exercise.name = newName;
+            
+            // Move workout data to new name
+            workoutData[newName] = workoutData[currentExercise];
+            delete workoutData[currentExercise];
+            
+            // Update all workout records to reflect new exercise name
+            workoutData[newName].forEach(workout => {
+                workout.exercise = newName;
+            });
+            
+            // Update current exercise reference
+            currentExercise = newName;
+        }
+        
         exercise.metrics = newMetrics;
         localStorage.setItem('exercises', JSON.stringify(exercises));
+        localStorage.setItem('workoutData', JSON.stringify(workoutData));
+        
+        populateExerciseSelector();
+        document.getElementById('exercise-select').value = currentExercise;
         updateWorkoutInputs();
+        updateStats();
+        displayWorkoutHistory();
+        updateProgressView();
+        
         hideEditExerciseModal();
         alert('Exercise updated successfully!');
     }
@@ -436,11 +476,34 @@ function updateExistingExercise() {
     if (document.getElementById('edit-track-weight').checked) newMetrics.push('weight');
     if (document.getElementById('edit-track-time').checked) newMetrics.push('time');
     
+    const newName = document.getElementById('edit-exercise-name').getAttribute('data-new-name') || currentExercise;
     const exercise = exercises.find(ex => ex.name === currentExercise);
+    
+    // Handle name change if needed
+    if (newName !== currentExercise) {
+        exercise.name = newName;
+        workoutData[newName] = workoutData[currentExercise];
+        delete workoutData[currentExercise];
+        
+        workoutData[newName].forEach(workout => {
+            workout.exercise = newName;
+        });
+        
+        currentExercise = newName;
+    }
+    
     exercise.metrics = newMetrics;
     
     localStorage.setItem('exercises', JSON.stringify(exercises));
+    localStorage.setItem('workoutData', JSON.stringify(workoutData));
+    
+    populateExerciseSelector();
+    document.getElementById('exercise-select').value = currentExercise;
     updateWorkoutInputs();
+    updateStats();
+    displayWorkoutHistory();
+    updateProgressView();
+    
     hideMetricUpdateModal();
     alert('Exercise updated! Future workouts will track: ' + newMetrics.join(', '));
 }
