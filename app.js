@@ -74,7 +74,36 @@ function populateExerciseSelector() {
         displayWorkoutHistory();
         updateProgressView();
         updateWorkoutInputs();
+        updateEditExerciseLink();
     });
+    
+    // Update the edit link on initial load
+    updateEditExerciseLink();
+}
+
+function updateEditExerciseLink() {
+    const editLink = document.getElementById('edit-exercise-link');
+    if (!editLink) return;
+    
+    // Get base exercise name (remove parentheses and content)
+    let baseName = currentExercise;
+    const parenIndex = baseName.indexOf('(');
+    if (parenIndex !== -1) {
+        baseName = baseName.substring(0, parenIndex).trim();
+    }
+    
+    // Capitalize first letter
+    baseName = baseName.charAt(0).toUpperCase() + baseName.slice(1);
+    
+    // Create the settings text
+    let settingsText = baseName + ' Settings';
+    
+    // Truncate if too long (let's say 18 characters max to leave room for gear icon)
+    if (settingsText.length > 18) {
+        settingsText = settingsText.substring(0, 15) + '...';
+    }
+    
+    editLink.textContent = '⚙️ ' + settingsText;
 }
 
 function updateWorkoutInputs() {
