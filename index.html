@@ -20,7 +20,10 @@
             <div class="exercise-selector">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <label for="exercise-select" style="margin-bottom: 0;">Select Exercise:</label>
-                    <a href="#" onclick="showAddExerciseModal(); return false;" style="color: #667eea; text-decoration: none; font-size: 0.9em; font-weight: 600;">+ Add Exercise</a>
+                    <div style="display: flex; gap: 10px; font-size: 0.9em;">
+                        <a href="#" onclick="showAddExerciseModal(); return false;" style="color: #667eea; text-decoration: none; font-weight: 600;">+ Add Exercise</a>
+                        <a href="#" onclick="showEditExerciseModal(); return false;" style="color: #28a745; text-decoration: none; font-weight: 600;" id="edit-exercise-link">⚙️ Edit Current</a>
+                    </div>
                 </div>
                 <select id="exercise-select">
                     <option value="pushups">Push-ups</option>
@@ -33,14 +36,13 @@
                     <div class="value" id="last-reps">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Average Reps</h3>
+                    <h3>Average</h3>
                     <div class="value" id="avg-reps">0</div>
                 </div>
             </div>
 
             <div class="workout-input">
-                <label for="reps-input">Reps Completed:</label>
-                <input type="number" id="reps-input" placeholder="Enter reps" min="0">
+                <!-- Dynamic inputs will be populated here -->
             </div>
 
             <button class="button" onclick="logWorkout()">Log Workout</button>
@@ -128,16 +130,89 @@
                 <input type="text" id="new-exercise-name" placeholder="Exercise name (e.g., Squats)" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 20px;">
             </div>
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #555;">Tracking Type:</label>
-                <select id="exercise-type-select" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; background: white;">
-                    <option value="reps">Reps Only (ex: Push-ups, Pull-ups, Squats)</option>
-                    <option value="time">Time (ex: Dead-hang, Plank, Wall-sit)</option>
-                    <option value="weight-reps">Reps and Weight (ex: Bench Press, Deadlift)</option>
-                </select>
+                <label style="display: block; margin-bottom: 15px; font-weight: 600; color: #555;">What do you want to track?</label>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <label style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;">
+                        <input type="checkbox" id="track-reps" checked style="width: 18px; height: 18px; margin-right: 10px; margin-top: 2px;">
+                        <span style="font-weight: 500;">Reps (repetitions)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;">
+                        <input type="checkbox" id="track-weight" style="width: 18px; height: 18px; margin-right: 10px; margin-top: 2px;">
+                        <span style="font-weight: 500;">Weight (vest, plates, etc.)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;">
+                        <input type="checkbox" id="track-time" style="width: 18px; height: 18px; margin-right: 10px; margin-top: 2px;">
+                        <span style="font-weight: 500;">Time (duration)</span>
+                    </label>
+                </div>
+                <div style="margin-top: 10px; font-size: 0.9em; color: #666; font-style: italic;">
+                    You can select multiple options. For example: Reps + Weight for weighted exercises.
+                </div>
             </div>
             <div class="modal-buttons">
                 <button class="cancel-btn" onclick="hideAddExerciseModal()">Cancel</button>
-                <button class="confirm-btn" onclick="addNewExercise()">Add</button>
+                <button class="confirm-btn" onclick="addNewExercise()">Add Exercise</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Exercise Modal -->
+    <div id="edit-exercise-modal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Exercise</h3>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #555;">Exercise Name:</label>
+                <input type="text" id="edit-exercise-name" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 15px; font-weight: 600; color: #555;">What do you want to track?</label>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <label style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;">
+                        <input type="checkbox" id="edit-track-reps" style="width: 18px; height: 18px; margin-right: 10px; margin-top: 2px;">
+                        <span style="font-weight: 500;">Reps (repetitions)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;">
+                        <input type="checkbox" id="edit-track-weight" style="width: 18px; height: 18px; margin-right: 10px; margin-top: 2px;">
+                        <span style="font-weight: 500;">Weight (vest, plates, etc.)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px; cursor: pointer;">
+                        <input type="checkbox" id="edit-track-time" style="width: 18px; height: 18px; margin-right: 10px; margin-top: 2px;">
+                        <span style="font-weight: 500;">Time (duration)</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="hideEditExerciseModal()">Cancel</button>
+                <button class="confirm-btn" onclick="updateExercise()">Update</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metric Update Options Modal -->
+    <div id="metric-update-modal" class="modal">
+        <div class="modal-content">
+            <h3>Update Exercise Tracking</h3>
+            <p>You're adding new metrics (<span id="new-metrics-list"></span>) to <strong id="current-exercise-name"></strong> which already has workout data.</p>
+            <p>How would you like to proceed?</p>
+            
+            <div style="margin: 20px 0;">
+                <button class="confirm-btn" style="width: 100%; margin-bottom: 10px; padding: 15px;" onclick="updateExistingExercise()">
+                    📝 Update Current Exercise
+                    <div style="font-size: 0.9em; font-weight: normal; margin-top: 5px; opacity: 0.9;">
+                        All future workouts will include the new metrics
+                    </div>
+                </button>
+                
+                <button class="confirm-btn" style="width: 100%; background: #28a745; padding: 15px;" onclick="createNewVariant()">
+                    ➕ Create New Exercise Variant
+                    <div style="font-size: 0.9em; font-weight: normal; margin-top: 5px; opacity: 0.9;">
+                        Keep existing data separate (recommended)
+                    </div>
+                </button>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="hideMetricUpdateModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -151,9 +226,8 @@
                 <select id="edit-exercise-select" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;">
                 </select>
             </div>
-            <div style="margin-bottom: 20px;">
-                <label for="edit-reps-input" style="display: block; margin-bottom: 10px; font-weight: 600;">Reps:</label>
-                <input type="number" id="edit-reps-input" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px;" min="0">
+            <div id="edit-workout-inputs">
+                <!-- Dynamic inputs will be populated here -->
             </div>
             <div class="modal-buttons">
                 <button class="cancel-btn" onclick="hideEditWorkoutModal()">Cancel</button>
