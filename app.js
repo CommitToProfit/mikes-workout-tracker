@@ -1,4 +1,4 @@
-// Data storage with more default exercises
+// Data storage with default exercises
 let exercises = JSON.parse(localStorage.getItem('exercises')) || [
     {name: 'pushups', metrics: ['reps']},
     {name: 'pull-ups', metrics: ['reps']},
@@ -8,27 +8,10 @@ let workoutData = JSON.parse(localStorage.getItem('workoutData')) || {};
 let importedData = null;
 let editingWorkoutIndex = -1;
 
-// Migrate old exercise format to new format
-function migrateExercises() {
-    let needsMigration = false;
-    exercises = exercises.map(exercise => {
-        if (typeof exercise === 'string') {
-            needsMigration = true;
-            return {name: exercise, metrics: ['reps']};
-        }
-        return exercise;
-    });
-    
-    if (needsMigration) {
-        localStorage.setItem('exercises', JSON.stringify(exercises));
-    }
-}
-
 // Initialize workout data for existing exercises
 exercises.forEach(exercise => {
-    const exerciseName = typeof exercise === 'string' ? exercise : exercise.name;
-    if (!workoutData[exerciseName]) {
-        workoutData[exerciseName] = [];
+    if (!workoutData[exercise.name]) {
+        workoutData[exercise.name] = [];
     }
 });
 
@@ -36,7 +19,6 @@ let currentExercise = 'pushups';
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
-    migrateExercises();
     populateExerciseSelector();
     updateStats();
     displayWorkoutHistory();
@@ -54,14 +36,13 @@ function populateExerciseSelector() {
     selector.innerHTML = '';
     
     exercises.forEach(exercise => {
-        const exerciseName = typeof exercise === 'string' ? exercise : exercise.name;
         const option = document.createElement('option');
-        option.value = exerciseName;
+        option.value = exercise.name;
         // Format display names properly
-        let displayName = exerciseName.charAt(0).toUpperCase() + exerciseName.slice(1);
-        if (exerciseName === 'pull-ups') {
+        let displayName = exercise.name.charAt(0).toUpperCase() + exercise.name.slice(1);
+        if (exercise.name === 'pull-ups') {
             displayName = 'Pull-ups (palms away)';
-        } else if (exerciseName === 'chin-ups') {
+        } else if (exercise.name === 'chin-ups') {
             displayName = 'Chin-ups (palms toward you)';
         }
         option.textContent = displayName;
@@ -847,7 +828,7 @@ function exportData() {
         exercises: exercises,
         workoutData: workoutData,
         exportDate: new Date().toISOString(),
-        version: "2.0"
+        version: "3.0"
     };
 
     const dataStr = JSON.stringify(exportObj, null, 2);
@@ -879,8 +860,14 @@ function importData(event) {
         try {
             const data = JSON.parse(e.target.result);
             
-            if (!data.exercises || !data.workoutData) {
-                alert('Invalid file format.');
+            if (!data.exercises || !data.workoutData || !data.version) {
+                alert('Invalid file format. This file may be from an incompatible version.');
+                return;
+            }
+
+            // Check version compatibility
+            if (data.version !== "3.0") {
+                alert(`Unsupported file version: ${data.version}. This app supports version 3.0 files only.`);
                 return;
             }
 
@@ -893,13 +880,14 @@ function importData(event) {
                 '<strong>Import Preview:</strong><br>' +
                 '• ' + data.exercises.length + ' exercises<br>' +
                 '• ' + totalWorkouts + ' total workouts<br>' +
-                '• Export date: ' + exportDate + '<br><br>' +
+                '• Export date: ' + exportDate + '<br>' +
+                '• Version: ' + data.version + '<br><br>' +
                 'This will replace all your current data. Continue?';
             
             document.getElementById('import-modal').style.display = 'block';
             
         } catch (error) {
-            alert('Error reading file.');
+            alert('Error reading file. Please make sure this is a valid workout data backup.');
         }
     };
     
@@ -916,16 +904,7 @@ function confirmImport() {
     if (!importedData) return;
 
     try {
-        // Handle migration from old format if needed
-        if (importedData.exercises && Array.isArray(importedData.exercises)) {
-            exercises = importedData.exercises.map(exercise => {
-                if (typeof exercise === 'string') {
-                    return {name: exercise, metrics: ['reps']};
-                }
-                return exercise;
-            });
-        }
-        
+        exercises = importedData.exercises;
         workoutData = importedData.workoutData;
         
         localStorage.setItem('exercises', JSON.stringify(exercises));
@@ -941,7 +920,7 @@ function confirmImport() {
         alert('Data imported successfully! 📥');
         
     } catch (error) {
-        alert('Error importing data.');
+        alert('Error importing data. Please try again.');
     }
 }
 
