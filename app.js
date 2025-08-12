@@ -953,8 +953,8 @@ function editWorkout(index) {
     const workout = data[index];
     editingWorkoutIndex = index;
 
-    populateEditExerciseSelector();
-    document.getElementById('edit-exercise-select').value = currentExercise;
+    // Set the exercise name display (not editable)
+    document.getElementById('edit-exercise-display').textContent = getExerciseDisplayName(currentExercise);
     
     // Initialize the input fields for the current exercise
     updateEditWorkoutInputs(currentExercise);
@@ -971,29 +971,14 @@ function editWorkout(index) {
     document.getElementById('edit-workout-modal').style.display = 'block';
 }
 
-function populateEditExerciseSelector() {
-    const selector = document.getElementById('edit-exercise-select');
-    selector.innerHTML = '';
-    
-    exercises.forEach(exercise => {
-        const exerciseName = exercise.name;
-        const option = document.createElement('option');
-        option.value = exerciseName;
-        // Format display names properly
-        let displayName = exerciseName.charAt(0).toUpperCase() + exerciseName.slice(1);
-        if (exerciseName === 'pull-ups') {
-            displayName = 'Pull-ups (palms away)';
-        } else if (exerciseName === 'chin-ups') {
-            displayName = 'Chin-ups (palms toward you)';
-        }
-        option.textContent = displayName;
-        selector.appendChild(option);
-    });
-    
-    // Add change handler to update inputs when exercise changes
-    selector.addEventListener('change', function() {
-        updateEditWorkoutInputs(this.value);
-    });
+function getExerciseDisplayName(exerciseName) {
+    let displayName = exerciseName.charAt(0).toUpperCase() + exerciseName.slice(1);
+    if (exerciseName === 'pull-ups') {
+        displayName = 'Pull-ups (palms away)';
+    } else if (exerciseName === 'chin-ups') {
+        displayName = 'Chin-ups (palms toward you)';
+    }
+    return displayName;
 }
 
 function updateEditWorkoutInputs(exerciseName) {
@@ -1052,8 +1037,7 @@ function hideEditWorkoutModal() {
 function saveWorkoutEdit() {
     if (editingWorkoutIndex === -1) return;
 
-    const newExercise = document.getElementById('edit-exercise-select').value;
-    const newMetrics = getExerciseMetrics(newExercise);
+    const metrics = getExerciseMetrics(currentExercise);
     
     const oldData = workoutData[currentExercise] || [];
     const workout = oldData[editingWorkoutIndex];
@@ -1062,10 +1046,10 @@ function saveWorkoutEdit() {
     let hasValidInput = false;
     const newWorkout = {
         date: workout.date,
-        exercise: newExercise
+        exercise: currentExercise
     };
     
-    newMetrics.forEach(metric => {
+    metrics.forEach(metric => {
         const input = document.getElementById('edit-' + metric + '-input');
         if (input && input.value.trim()) {
             if (metric === 'time') {
@@ -1097,17 +1081,8 @@ function saveWorkoutEdit() {
         return;
     }
 
-    // Remove from old exercise
-    oldData.splice(editingWorkoutIndex, 1);
-
-    // Add to new exercise
-    if (!workoutData[newExercise]) {
-        workoutData[newExercise] = [];
-    }
-    workoutData[newExercise].push(newWorkout);
-
-    // Sort by date
-    workoutData[newExercise].sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Replace the workout at the same index
+    oldData[editingWorkoutIndex] = newWorkout;
 
     localStorage.setItem('workoutData', JSON.stringify(workoutData));
 
