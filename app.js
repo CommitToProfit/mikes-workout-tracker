@@ -956,7 +956,10 @@ function editWorkout(index) {
     populateEditExerciseSelector();
     document.getElementById('edit-exercise-select').value = currentExercise;
     
-    // Populate metric inputs
+    // Initialize the input fields for the current exercise
+    updateEditWorkoutInputs(currentExercise);
+    
+    // Populate metric inputs with the workout data
     const metrics = getExerciseMetrics(currentExercise);
     metrics.forEach(metric => {
         const input = document.getElementById('edit-' + metric + '-input');
